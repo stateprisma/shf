@@ -1,1 +1,5 @@
+# Ignore Rust build
 /target
+
+# Ignore frontend build
+public
