@@ -19,9 +19,8 @@ rules:
     level: warning
     optional: true
     options:
-      - x86_64
-      - arm64
-      - tools
+      - frontend
+      - backend
       - readme
       - commitlint
       - license
