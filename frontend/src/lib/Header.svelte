@@ -1,6 +1,10 @@
 <script lang="ts">
+	import { socketManager } from '$lib/socket';
+
 	let connected = false;
 	let token = '';
+
+	socketManager.subscribeConnection((con: boolean) => (connected = con));
 
 	const updateToken = (event: Event & { currentTarget: EventTarget & HTMLInputElement }) => {
 		token = event.currentTarget.value;
