@@ -4,11 +4,18 @@ const SERVER_PORT: &str = "3000";
 const SERVER_HOST: &str = "0.0.0.0";
 
 const FRONTEND: &str = "public";
+const PERMISSIONS_CONFIG: &str = ".shf.toml";
 
 mod routes;
+mod websocket;
+
+mod permissions;
 
 #[tokio::main]
 async fn main() {
+    /* Load permission config */
+    permissions::data::initialize_permissions(PERMISSIONS_CONFIG).await;
+
     let app = Router::new()
         .merge(routes::svelte(FRONTEND))
         .merge(routes::websocket());
