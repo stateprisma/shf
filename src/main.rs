@@ -9,7 +9,9 @@ mod routes;
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new().merge(routes::svelte(FRONTEND));
+    let app = Router::new()
+        .merge(routes::svelte(FRONTEND))
+        .merge(routes::websocket());
 
     let listener = tokio::net::TcpListener::bind(format!("{SERVER_HOST}:{SERVER_PORT}"))
         .await
@@ -24,6 +26,6 @@ async fn main() {
 async fn shutdown_signal() {
     tokio::signal::ctrl_c()
         .await
-        .expect("Expect shutdown signal handler");
-    println!("[offline] fsh");
+        .expect("Shutdown signal handler failed");
+    println!("[offl] fsh");
 }
