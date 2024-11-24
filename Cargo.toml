@@ -3,6 +3,12 @@ name = "shf"
 version = "0.1.0"
 edition = "2021"
 
+[profile.release]
+# Automatically strip symbols from the binary
+strip = true
+lto = true
+codegen-units = 1
+
 [dependencies]
 axum = { version = "0.7.7", features = ["ws"] }
 
