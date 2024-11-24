@@ -1,13 +1,11 @@
 use axum::{
-    extract::{ws::WebSocket, WebSocketUpgrade},
-    handler::HandlerWithoutStateExt,
-    http::StatusCode,
-    response::Response,
-    routing::get,
-    Router,
+    extract::WebSocketUpgrade, handler::HandlerWithoutStateExt, http::StatusCode,
+    response::Response, routing::get, Router,
 };
 
 use tower_http::services::ServeDir;
+
+use crate::websocket::handle_socket;
 
 #[inline]
 pub fn svelte(build_dir: &str) -> Router {
@@ -28,20 +26,4 @@ pub fn websocket() -> Router {
 #[inline]
 async fn ws_handler(ws: WebSocketUpgrade) -> Response {
     ws.on_upgrade(handle_socket)
-}
-
-async fn handle_socket(mut socket: WebSocket) {
-    while let Some(msg) = socket.recv().await {
-        let msg = if let Ok(msg) = msg {
-            msg
-        } else {
-            println!("[info] Client disconnected");
-            return;
-        };
-
-        if socket.send(msg).await.is_err() {
-            println!("[info] Client disconnected");
-            return;
-        }
-    }
 }
