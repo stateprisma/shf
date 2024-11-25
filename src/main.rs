@@ -10,6 +10,7 @@ mod routes;
 mod websocket;
 
 mod permissions;
+mod messages;
 
 #[tokio::main]
 async fn main() {
