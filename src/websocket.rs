@@ -1,15 +1,12 @@
-use axum::extract::ws::WebSocket;
+use axum::extract::ws::{Message, WebSocket};
+
+use crate::messages::types::CommonMsg;
 
 pub async fn handle_socket(mut socket: WebSocket) {
     while let Some(msg) = socket.recv().await {
-        let msg = if let Ok(msg) = msg {
-            msg
+        if let Ok(Message::Binary(data)) = msg {
+            CommonMsg::new(&data).process().await;
         } else {
-            println!("[info] Client disconnected");
-            return;
-        };
-
-        if socket.send(msg).await.is_err() {
             println!("[info] Client disconnected");
             return;
         }
