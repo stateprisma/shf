@@ -52,7 +52,7 @@ class SocketManager {
 		}
 	}
 
-	send(message: string): void {
+	send(message: string | ArrayBufferLike | Blob | ArrayBufferView): void {
 		if (this.socket && this.socket.readyState === WebSocket.OPEN) {
 			this.socket.send(message);
 		} else {
