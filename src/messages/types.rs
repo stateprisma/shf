@@ -1,5 +1,7 @@
 use std::vec;
 
+use axum::extract::ws::WebSocket;
+use futures_util::stream::SplitSink;
 use rmp_serde::decode;
 use serde::Deserialize;
 
@@ -12,7 +14,8 @@ pub enum Types {
 pub struct CommonMsg {
     /* Type */
     t: Types,
-    data: Vec<u8>,
+    /* Arguments */
+    a: Vec<u8>,
 }
 
 impl CommonMsg {
@@ -23,13 +26,13 @@ impl CommonMsg {
                 eprintln!("[err ] Couldn't parse incoming websocket message: {:?}", e);
                 Self {
                     t: Types::Error,
-                    data: vec![],
+                    a: vec![],
                 }
             }
         }
     }
 
-    pub async fn process(&self) {
+    pub async fn process(&self, _: &SplitSink<WebSocket, axum::extract::ws::Message>) {
         println!("[type] {:?}", self.t);
         match self.t {
             Types::Error => (),
