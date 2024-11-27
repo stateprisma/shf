@@ -14,7 +14,7 @@ pub async fn handle_socket(socket: WebSocket) {
                 let clone_sender = conc_sender.clone();
                 tokio::spawn(async move {
                     CommonMsg::from_msgpack(&data)
-                        .process(&*clone_sender.lock().await)
+                        .process(&mut *clone_sender.lock().await)
                         .await;
                 });
             }
