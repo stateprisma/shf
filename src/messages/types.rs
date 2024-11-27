@@ -5,14 +5,28 @@ use futures_util::stream::SplitSink;
 use rmp_serde::decode;
 use serde::{Deserialize, Serialize};
 
-use crate::messages::handlers::handle_query;
-
 pub type ConcurrentWebSocket = SplitSink<WebSocket, axum::extract::ws::Message>;
 
 #[derive(Deserialize, Debug)]
 pub enum Types {
     Error = 0,
-    Query = 1,
+}
+
+pub trait FromMsgPack<T: Default + for<'a> Deserialize<'a>> {
+    fn from_msgpack(data: &[u8]) -> T {
+        match decode::from_slice::<T>(data) {
+            Ok(msg) => msg,
+            Err(e) => {
+                eprintln!("[err ] Couldn't parse incoming websocket message: {:?}", e);
+                T::default()
+            }
+        }
+    }
+}
+
+pub trait ProcessMsg<T: Default + for<'a> Deserialize<'a>> {
+    /// Process incoming message
+    async fn process(&self, websocket: &ConcurrentWebSocket);
 }
 
 #[derive(Deserialize, Debug)]
@@ -23,34 +37,24 @@ pub struct CommonMsg {
     a: Vec<u8>,
 }
 
-impl CommonMsg {
-    pub fn new(data: &[u8]) -> CommonMsg {
-        match decode::from_slice::<Self>(data) {
-            Ok(msg) => msg,
-            Err(e) => {
-                eprintln!("[err ] Couldn't parse incoming websocket message: {:?}", e);
-                Self {
-                    t: Types::Error,
-                    a: vec![],
-                }
-            }
-        }
-    }
-
-    pub async fn process(&self, websocket_rx: &ConcurrentWebSocket) {
-        println!("[type] {:?}", self.t);
-        match self.t {
-            Types::Error => (),
-            Types::Query => {
-                handle_query(&decode::from_slice::<QueryMsg>(&self.a), &websocket_rx).await
-            }
+impl Default for CommonMsg {
+    fn default() -> Self {
+        Self {
+            t: Types::Error,
+            a: vec![],
         }
     }
 }
 
-#[derive(Deserialize)]
-pub struct QueryMsg {
-    path: String,
+impl FromMsgPack<CommonMsg> for CommonMsg {}
+
+impl ProcessMsg<CommonMsg> for CommonMsg {
+    async fn process(&self, _: &ConcurrentWebSocket) {
+        println!("[type] {:?}", self.t);
+        match self.t {
+            Types::Error => (),
+        }
+    }
 }
 
 #[derive(Serialize)]
