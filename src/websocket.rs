@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::messages::types::CommonMsg;
+use crate::messages::types::{CommonMsg, FromMsgPack, ProcessMsg};
 use axum::extract::ws::{Message, WebSocket};
 use futures_util::StreamExt;
 use tokio::sync::Mutex;
@@ -13,7 +13,7 @@ pub async fn handle_socket(socket: WebSocket) {
             Ok(Message::Binary(data)) => {
                 let clone_sender = conc_sender.clone();
                 tokio::spawn(async move {
-                    CommonMsg::new(&data)
+                    CommonMsg::from_msgpack(&data)
                         .process(&*clone_sender.lock().await)
                         .await;
                 });
