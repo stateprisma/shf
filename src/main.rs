@@ -9,8 +9,9 @@ const PERMISSIONS_CONFIG: &str = ".shf.toml";
 mod routes;
 mod websocket;
 
-mod permissions;
+mod filesystem;
 mod messages;
+mod permissions;
 
 #[tokio::main]
 async fn main() {
