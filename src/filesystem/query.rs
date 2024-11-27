@@ -1,5 +1,6 @@
 use lazy_static::lazy_static;
 use serde::Serialize;
+use serde_repr::Serialize_repr;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
@@ -9,12 +10,13 @@ lazy_static! {
         std::env::current_dir().expect("Failed to get working directory");
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize_repr, Debug)]
+#[repr(u8)]
 pub enum FileEntryType {
-    File,
-    Directory,
-    Symlink,
-    Unknown,
+    Unknown = 0,
+    File = 1,
+    Directory = 2,
+    Symlink = 3,
 }
 
 #[derive(Serialize, Debug)]
