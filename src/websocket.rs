@@ -11,11 +11,9 @@ pub async fn handle_socket(socket: WebSocket) {
     while let Some(msg) = { receiver.next().await } {
         match msg {
             Ok(Message::Binary(data)) => {
-                let clone_sender = conc_sender.clone();
+                let mut clone_sender = conc_sender.clone();
                 tokio::spawn(async move {
-                    Header::from_msgpack(&data)
-                        .process(&mut *clone_sender.lock().await)
-                        .await;
+                    Header::from_msgpack(&data).process(&mut clone_sender).await;
                 });
             }
             Ok(Message::Close(_)) => {
