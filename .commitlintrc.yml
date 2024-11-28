@@ -16,7 +16,7 @@ rules:
   footers-empty:
     level: ignore
   scope:
-    level: warning
+    level: error
     optional: true
     options:
       - frontend
