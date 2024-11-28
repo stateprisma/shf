@@ -8,14 +8,16 @@
 	export let descriptor: FileEntry;
 
 	function updateQueryParam(newQueryValue: string) {
-		const newUrl =
-			window.location.protocol +
-			'//' +
-			window.location.host +
-			window.location.pathname +
-			`?query=${newQueryValue}`;
+		if (window) {
+			const newUrl =
+				window.location.protocol +
+				'//' +
+				window.location.host +
+				window.location.pathname +
+				`?query=${newQueryValue}`;
 
-		if (window) window.history.pushState({ path: newUrl }, '', newUrl);
+			window.history.pushState({ path: newUrl }, '', newUrl);
+		}
 	}
 
 	function getQueryParam(): string {
@@ -25,27 +27,30 @@
 			return '/';
 		}
 	}
-</script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div
-	class="file-entry directory"
-	on:click={() => {
-		updateQueryParam(
-			`${window.location.search.replace('?query=', '') || '/'}/${descriptor.name}`.replace(
-				'//',
-				'/'
-			)
-		);
+	const handleOnClick = () => {
+		if (descriptor.name === '..') {
+			updateQueryParam(`${getQueryParam().split('/').slice(0, -1).join('/') || '/'}`);
+		} else {
+			updateQueryParam(
+				`${window.location.search.replace('?query=', '') || '/'}/${descriptor.name}`.replace(
+					'//',
+					'/'
+				)
+			);
+		}
 		socketManager.send(
 			encodeMsg({
 				type: Types.Query,
 				args: { path: getQueryParam() }
 			})
 		);
-	}}
->
+	};
+</script>
+
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="file-entry directory" on:click={() => handleOnClick()}>
 	<div class="icon">📁</div>
 	<div class="name">{descriptor.name}</div>
 	<div class="modif">{formatDate(descriptor.last_modified)}</div>
