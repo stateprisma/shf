@@ -1,14 +1,15 @@
-use std::vec;
+use std::{sync::Arc, vec};
 
 use axum::extract::ws::{Message, WebSocket};
 use futures_util::{stream::SplitSink, SinkExt};
 use rmp_serde::{decode, encode};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
+use tokio::sync::Mutex;
 
 use crate::filesystem::query::{list_directory, FileEntry};
 
-pub type ConcurrentWebSocket = SplitSink<WebSocket, axum::extract::ws::Message>;
+pub type ConcurrentWebSocket = Arc<Mutex<SplitSink<WebSocket, axum::extract::ws::Message>>>;
 
 #[derive(Deserialize_repr, Serialize_repr, Debug)]
 #[repr(u8)]
@@ -92,6 +93,8 @@ impl QueryMsg {
             };
 
             if let Err(e) = socket
+                .lock()
+                .await
                 .send(Message::Binary(match encode::to_vec_named(&resp) {
                     Ok(msg) => msg,
                     Err(e) => {
