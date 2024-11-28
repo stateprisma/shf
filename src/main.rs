@@ -20,7 +20,8 @@ async fn main() {
 
     let app = Router::new()
         .merge(routes::svelte(FRONTEND))
-        .merge(routes::websocket());
+        .merge(routes::websocket())
+        .merge(filesystem::video::video_router());
 
     let listener = tokio::net::TcpListener::bind(format!("{SERVER_HOST}:{SERVER_PORT}"))
         .await
