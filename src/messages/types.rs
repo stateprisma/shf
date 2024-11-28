@@ -90,7 +90,7 @@ impl QueryMsg {
         if let Ok(entries) = list_directory(&self.path) {
             let resp = CommonResp {
                 t: Types::Query,
-                a: match encode::to_vec(&QueryResp { entries }) {
+                a: match encode::to_vec_named(&QueryResp { entries }) {
                     Ok(data) => data,
                     Err(e) => {
                         eprintln!("[err ] Failed to encode QueryResp: {:?}", e);
@@ -100,7 +100,7 @@ impl QueryMsg {
             };
 
             if let Err(e) = socket
-                .send(Message::Binary(match encode::to_vec(&resp) {
+                .send(Message::Binary(match encode::to_vec_named(&resp) {
                     Ok(msg) => msg,
                     Err(e) => {
                         eprintln!("[err ] Failed to encode CommonResp: {:?}", e);
