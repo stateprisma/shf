@@ -34,15 +34,15 @@ pub trait ProcessMsg<T: Default + for<'a> Deserialize<'a>> {
     async fn process(&self, websocket: &mut ConcurrentWebSocket);
 }
 
-#[derive(Deserialize, Debug)]
-pub struct CommonMsg {
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Header {
     /* Type */
     t: Types,
     /* Arguments */
     a: Vec<u8>,
 }
 
-impl Default for CommonMsg {
+impl Default for Header {
     fn default() -> Self {
         Self {
             t: Types::Error,
@@ -51,9 +51,9 @@ impl Default for CommonMsg {
     }
 }
 
-impl FromMsgPack<CommonMsg> for CommonMsg {}
+impl FromMsgPack<Header> for Header {}
 
-impl ProcessMsg<CommonMsg> for CommonMsg {
+impl ProcessMsg<Header> for Header {
     async fn process(&self, socket: &mut ConcurrentWebSocket) {
         println!("[type] {:?}", self.t);
         match self.t {
@@ -61,14 +61,6 @@ impl ProcessMsg<CommonMsg> for CommonMsg {
             Types::Query => QueryMsg::from_msgpack(&self.a).process(socket).await,
         }
     }
-}
-
-#[derive(Serialize)]
-struct CommonResp {
-    /* Type */
-    t: Types,
-    /* Arguments */
-    a: Vec<u8>,
 }
 
 #[derive(Deserialize)]
@@ -88,7 +80,7 @@ impl FromMsgPack<QueryMsg> for QueryMsg {}
 impl QueryMsg {
     pub async fn process(&self, socket: &mut ConcurrentWebSocket) {
         if let Ok(entries) = list_directory(&self.path) {
-            let resp = CommonResp {
+            let resp = Header {
                 t: Types::Query,
                 a: match encode::to_vec_named(&QueryResp { entries }) {
                     Ok(data) => data,
@@ -103,7 +95,7 @@ impl QueryMsg {
                 .send(Message::Binary(match encode::to_vec_named(&resp) {
                     Ok(msg) => msg,
                     Err(e) => {
-                        eprintln!("[err ] Failed to encode CommonResp: {:?}", e);
+                        eprintln!("[err ] Failed to encode Header: {:?}", e);
                         return;
                     }
                 }))

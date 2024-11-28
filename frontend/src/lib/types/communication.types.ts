@@ -5,7 +5,7 @@ export enum Types {
 	Query = 1
 }
 
-export interface CommonResp {
+export interface Header {
 	t: Types;
 	a: Uint8Array;
 }
