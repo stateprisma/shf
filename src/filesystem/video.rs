@@ -2,26 +2,15 @@ use axum::http::{header, HeaderMap, StatusCode};
 use axum::{extract::Query, response::Response, routing::get, Router};
 use std::collections::HashMap;
 use std::io::SeekFrom;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncSeekExt};
 
-use super::WORKING_DIR;
+use super::escape_path;
 
 #[inline]
 pub fn video_router() -> Router {
     Router::new().route("/video", get(video_handler))
-}
-
-fn escape_path(relative_path: &str) -> PathBuf {
-    if relative_path.starts_with('/') {
-        WORKING_DIR.join(&relative_path[1..])
-    } else if relative_path.contains("..") {
-        println!("[warn] Attempted use of \"..\" blocked");
-        escape_path(&relative_path.replace("../", "").replace("..", ""))
-    } else {
-        WORKING_DIR.join(relative_path)
-    }
 }
 
 fn extract_extension(filename: &str) -> Result<String, String> {
