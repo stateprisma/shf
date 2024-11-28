@@ -1,5 +1,5 @@
 import { decode, encode } from '@msgpack/msgpack';
-import { Types, type CommonResp, type Responses } from './types/communication.types';
+import { Types, type Header, type Responses } from './types/communication.types';
 import type { QueryResp } from './types/query.types';
 
 export function encodeMsg(params: { type: Types; args: object }): Uint8Array {
@@ -7,7 +7,7 @@ export function encodeMsg(params: { type: Types; args: object }): Uint8Array {
 }
 
 export function decodeMsg(msg: Uint8Array): [Types | null, Responses | null] {
-	const cresp: CommonResp = decode(msg) as CommonResp;
+	const cresp: Header = decode(msg) as Header;
 	switch (cresp.t) {
 		case Types.Error:
 			return [Types.Error, null];
