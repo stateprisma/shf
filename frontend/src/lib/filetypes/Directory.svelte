@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { FileEntry } from '$lib/types/query.types';
+	import { formatDate } from '$lib/utils';
 
 	export let descriptor: FileEntry;
 </script>
@@ -7,6 +8,7 @@
 <div class="file-entry directory">
 	<div class="icon">📁</div>
 	<div class="name">{descriptor.name}</div>
+	<div class="modif">{formatDate(descriptor.last_modified)}</div>
 </div>
 
 <style>
@@ -38,6 +40,12 @@
 		overflow: hidden;
 		white-space: nowrap;
 		text-overflow: ellipsis;
+	}
+
+	.modif {
+		font-size: 14px;
+		color: #757575;
+		margin-left: auto;
 	}
 
 	.directory {

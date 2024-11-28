@@ -4,6 +4,7 @@ use serde_repr::Serialize_repr;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
+use std::time::UNIX_EPOCH;
 
 lazy_static! {
     static ref WORKING_DIR: PathBuf =
@@ -24,6 +25,7 @@ pub struct FileEntry {
     pub name: String,
     pub size: u64,
     pub type_: FileEntryType,
+    pub last_modified: u64,
 }
 
 fn escape_path(relative_path: &str) -> PathBuf {
@@ -63,10 +65,16 @@ pub fn list_directory(relative_path: &str) -> io::Result<Vec<FileEntry>> {
             FileEntryType::Unknown
         };
 
+        let last_modified = metadata
+            .modified()
+            .map(|t| t.duration_since(UNIX_EPOCH).unwrap().as_secs())
+            .unwrap_or(0);
+
         entries.push(FileEntry {
             name: entry.file_name().into_string().unwrap_or_default(),
             size: metadata.len(),
             type_: entry_type,
+            last_modified,
         });
     }
 
