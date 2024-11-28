@@ -1,5 +1,5 @@
 type ConnectionCallback = (connected: boolean) => void;
-type MessageCallback = (message: string) => void;
+type MessageCallback = (message: Uint8Array) => void;
 
 class SocketManager {
 	private static instance: SocketManager;
@@ -39,9 +39,8 @@ class SocketManager {
 			console.error('WebSocket error:', error);
 		};
 
-		this.socket.onmessage = (event) => {
-			console.log('WebSocket message received:', event.data);
-			this.notifyMessageSubscribers(event.data);
+		this.socket.onmessage = (event: { data: Blob }) => {
+			event.data.arrayBuffer().then((arr) => this.notifyMessageSubscribers(new Uint8Array(arr)));
 		};
 	}
 
@@ -80,7 +79,7 @@ class SocketManager {
 		this.connection_callbacks.forEach((callback) => callback(connected));
 	}
 
-	private notifyMessageSubscribers(message: string): void {
+	private notifyMessageSubscribers(message: Uint8Array): void {
 		this.message_callbacks.forEach((callback) => callback(message));
 	}
 }
