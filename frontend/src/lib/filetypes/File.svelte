@@ -1,11 +1,54 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import type { FileEntry } from '$lib/types/query.types';
 	import { formatDate } from '$lib/utils';
 
 	export let descriptor: FileEntry;
+
+	function updateQueryParam(newQueryValue: string) {
+		if (window) {
+			const newUrl =
+				window.location.protocol +
+				'//' +
+				window.location.host +
+				window.location.pathname +
+				`?query=${newQueryValue}`;
+
+			window.history.pushState({ path: newUrl }, '', newUrl);
+		}
+	}
+
+	function getQueryParam(): string {
+		if (window) {
+			return window.location.search.replace('?query=', '') || '/';
+		} else {
+			return '/';
+		}
+	}
+
+	const getFileExtension = (filename: string): string | undefined => {
+		return filename.split('.').pop();
+	};
+
+	const handleOnClick = () => {
+		switch (getFileExtension(descriptor.name)) {
+			case 'mp4':
+			case 'webm':
+			case 'ogv':
+			case 'avi':
+			case 'mkv':
+			case 'mov':
+				goto(`/video?query=${getQueryParam()}${descriptor.name}`);
+				break;
+			default:
+				break;
+		}
+	};
 </script>
 
-<div class="file-entry file">
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<div class="file-entry file" on:click={() => handleOnClick()}>
 	<div class="icon">📄</div>
 	<div class="name">{descriptor.name}</div>
 	{#if descriptor.size}
