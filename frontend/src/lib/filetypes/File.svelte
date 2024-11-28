@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { FileEntry } from '$lib/types/query.types';
+	import { formatDate } from '$lib/utils';
 
 	export let descriptor: FileEntry;
 </script>
@@ -10,6 +11,7 @@
 	{#if descriptor.size}
 		<div class="size">{descriptor.size} bytes</div>
 	{/if}
+	<div class="modif">{formatDate(descriptor.last_modified)}</div>
 </div>
 
 <style>
@@ -47,6 +49,12 @@
 		font-size: 12px;
 		margin-left: auto;
 		color: #777;
+	}
+
+	.modif {
+		font-size: 14px;
+		color: #757575;
+		margin-left: auto;
 	}
 
 	.file {
