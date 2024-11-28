@@ -3,3 +3,6 @@
 
 # Ignore frontend build
 public
+
+# Ignore playground
+playground
