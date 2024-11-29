@@ -1,0 +1,8 @@
+[default]
+readonly="public/*"
+hidden="*/test_config.toml"
+
+[admin]
+token = "someadmintoken"
+writeable = "**"
+except = {"admin-ro.md" = "r"}

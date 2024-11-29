@@ -1,3 +1,4 @@
+use glob::Pattern;
 use serde::Deserialize;
 use std::collections::HashMap;
 
@@ -11,7 +12,10 @@ impl Default for PermissionsConfig {
     fn default() -> Self {
         Self {
             default: UserPermissions {
-                perm: "r".to_owned(),
+                readonly: None,
+                writeable: None,
+                // Unwrap here is sound because of static pattern
+                hidden: Some(Pattern::new("**").unwrap()),
                 except: None,
             },
             tokens: HashMap::new(),
@@ -21,6 +25,8 @@ impl Default for PermissionsConfig {
 
 #[derive(Deserialize, Debug)]
 pub struct UserPermissions {
-    perm: String,
+    readonly: Option<Pattern>,
+    writeable: Option<Pattern>,
+    hidden: Option<Pattern>,
     except: Option<HashMap<String, String>>,
 }
