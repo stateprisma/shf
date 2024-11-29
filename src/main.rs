@@ -3,9 +3,9 @@ use axum::Router;
 const SERVER_PORT: &str = "3000";
 const SERVER_HOST: &str = "0.0.0.0";
 
-const FRONTEND: &str = "public";
 const PERMISSIONS_CONFIG: &str = ".shf.toml";
 
+mod bundle;
 mod routes;
 mod websocket;
 
@@ -19,7 +19,7 @@ async fn main() {
     permissions::data::initialize_permissions(PERMISSIONS_CONFIG).await;
 
     let app = Router::new()
-        .merge(routes::svelte(FRONTEND))
+        .merge(routes::svelte())
         .merge(routes::websocket())
         .merge(filesystem::video::video_router());
 
