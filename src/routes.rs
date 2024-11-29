@@ -1,16 +1,21 @@
-use axum::{
-    extract::WebSocketUpgrade, handler::HandlerWithoutStateExt, http::StatusCode,
-    response::Response, routing::get, Router,
-};
+use axum::extract::Path;
+use axum::{extract::WebSocketUpgrade, http::StatusCode, response::Response, routing::get, Router};
 
-use tower_http::services::ServeDir;
-
+use crate::bundle::serve_asset;
 use crate::websocket::handle_socket;
 
 #[inline]
-pub fn svelte(build_dir: &str) -> Router {
+pub fn svelte() -> Router {
     Router::new()
-        .fallback_service(ServeDir::new(build_dir).not_found_service(handler_404.into_service()))
+        .route(
+            "/",
+            get(|| async { serve_asset(Some(Path(String::from("")))).await }),
+        )
+        .route(
+            "/*path",
+            get(|path| async { serve_asset(Some(path)).await }),
+        )
+        .fallback_service(get(handler_404))
 }
 
 #[inline]
